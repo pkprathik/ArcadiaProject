@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flappy Bird | Arcadia</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        canvas {
+            background: skyblue;
+            display: block;
+            margin: 20px auto;
+            border: 2px solid #333;
+        }
+        .score {
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Flappy Bird</h1>
+</header>
+
+<div class="score">
+    Score: <span id="score">0</span>
+</div>
+
+<canvas id="gameCanvas" width="400" height="500"></canvas>
+
+<div style="text-align:center; margin-top:20px;">
+    <button class="btn" onclick="restartGame()">Restart</button>
+    <a href="../index.html" class="btn">Exit</a>
+</div>
+
+<script src="../js/flappy.js"></script>
+</body>
+</html>
