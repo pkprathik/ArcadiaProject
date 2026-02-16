@@ -19,22 +19,35 @@
     </style>
 </head>
 <body>
-
 <header>
-    <h1>Flappy Bird</h1>
+  <h1>Flappy Bird</h1>
 </header>
 
-<div class="score">
-    Score: <span id="score">0</span>
-</div>
+<div class="flappy-wrap">
+  <div class="flappy-hud">
+    <div class="flappy-title">🐤 Flappy</div>
+    <div class="flappy-score">Score: <span id="score">0</span></div>
+  </div>
 
-<canvas id="gameCanvas" width="400" height="500"></canvas>
+  <div style="position: relative;">
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
 
-<div style="text-align:center; margin-top:20px;">
+    <!-- Start / Game Over Overlay -->
+    <div id="flappyOverlay" class="flappy-overlay">
+      <div class="card">
+        <div id="flappyOverlayTitle" class="big">Tap / Press Space to Start</div>
+        <div id="flappyOverlayHint" class="hint">Click canvas or press Space to flap</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:14px;">
     <button class="btn" onclick="restartGame()">Restart</button>
     <a href="../index.html" class="btn">Exit</a>
+  </div>
 </div>
 
 <script src="../js/flappy.js"></script>
+
 </body>
 </html>

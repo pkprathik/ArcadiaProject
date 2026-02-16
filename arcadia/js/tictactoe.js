@@ -1,84 +1,99 @@
 const board = document.getElementById("board");
 const statusText = document.getElementById("status");
-const gamePopup = document.getElementById("gamePopup");
-const gamePopupText = document.getElementById("gamePopupText");
+const resultScreen = document.getElementById("resultScreen");
+const winnerSymbol = document.getElementById("winnerSymbol");
 
 let currentPlayer = "X";
 let gameActive = true;
 let gameState = ["", "", "", "", "", "", "", "", ""];
 
 const winningConditions = [
-    [0,1,2], [3,4,5], [6,7,8],
-    [0,3,6], [1,4,7], [2,5,8],
-    [0,4,8], [2,4,6]
-];
+  [0,1,2], [3,4,5], [6,7,8],
+  [0,3,6], [1,4,7], [2,5,8],
+  [0,4,8], [2,4,6]
+]
 
-// Create board cells
 function createBoard() {
-    board.innerHTML = "";
-    gameState.forEach((cell, index) => {
-        const cellDiv = document.createElement("div");
-        cellDiv.classList.add("cell");
-        cellDiv.dataset.index = index;
-        cellDiv.addEventListener("click", handleCellClick);
-        board.appendChild(cellDiv);
-    });
+  board.innerHTML = "";
+  gameState.forEach((_, index) => {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+    cell.dataset.index = index;
+    cell.addEventListener("click", handleCellClick);
+    board.appendChild(cell);
+  });
 }
 
-function handleCellClick(event) {
-    const index = event.target.dataset.index;
+function handleCellClick(e) {
+  const index = e.target.dataset.index;
+  if (!gameActive || gameState[index] !== "") return;
 
-    if (gameState[index] !== "" || !gameActive) return;
+  gameState[index] = currentPlayer;
+  e.target.textContent = currentPlayer;
 
-    gameState[index] = currentPlayer;
-    event.target.textContent = currentPlayer;
-
-    checkResult();
+  checkResult();
 }
 
 function checkResult() {
-    let roundWon = false;
+  let winner = null;
 
-    for (let condition of winningConditions) {
-        const [a, b, c] = condition;
-        if (
-            gameState[a] &&
-            gameState[a] === gameState[b] &&
-            gameState[a] === gameState[c]
-        ) {
-            roundWon = true;
-            break;
-        }
+  for (let [a, b, c] of winningConditions) {
+    if (
+      gameState[a] &&
+      gameState[a] === gameState[b] &&
+      gameState[a] === gameState[c]
+    ) {
+      winner = gameState[a];
+      break;
     }
+  }
 
-    if (roundWon) {
-        gameActive = false;
-        openPopup("🎉 Player " + currentPlayer + " Wins!");
-        return;
-    }
-    if (!gameState.includes("")) {
-        gameActive = false;
-        openPopup("Game Draw!");
-        return;
-    }
+  if (winner) {
+    gameActive = false;
+    showResult(winner);
+    return;
+  }
 
-    currentPlayer = currentPlayer === "X" ? "O" : "X";
-    openPopup("Player X wins!");
+  if (!gameState.includes("")) {
+    gameActive = false;
+    showResult("DRAW");
+    return;
+  }
+
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  statusText.textContent = `Player ${currentPlayer}'s turn`;
 }
+
+// function showResult(result) {
+//   resultScreen.style.display = "flex";
+//   winnerSymbol.textContent = result === "DRAW" ? "DRAW" : result;
+// }
+
+function showResult(result) {
+  const resultTitle = document.getElementById("resultTitle");
+  const resultMessage = document.getElementById("resultMessage");
+
+  resultScreen.style.display = "flex";
+
+  if (result === "DRAW") {
+    winnerSymbol.textContent = "🤝";
+    resultTitle.textContent = "It's a Draw!";
+    resultMessage.textContent = "Well played both players!";
+  } else {
+    winnerSymbol.textContent = result;
+    resultTitle.textContent = `Player ${result} Wins! 🎉`;
+    resultMessage.textContent = "Congratulations!";
+  }
+}
+
 
 function restartGame() {
-    gamePopup.style.display = "none";
-    currentPlayer = "X";
-    gameActive = true;
-    gameState = ["","","","","","","","",""];
-    statusText.textContent = "Player X's turn";
-    createBoard();
+  gameState = ["","","","","","","","",""];
+  currentPlayer = "X";
+  gameActive = true;
+  statusText.textContent = "Player X's turn";
+  resultScreen.style.display = "none";
+  createBoard();
 }
 
-function openPopup(msg) {
-    gamePopupText.innerText = msg;
-    gamePopup.style.display = "flex";
-}
-
-// Initialize game
 createBoard();

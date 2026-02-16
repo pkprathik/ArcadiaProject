@@ -1,110 +1,137 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let box = 20;
+const box = 20;
 let score = 0;
+let direction = null;
+let gameRunning = false;   // ⬅️ game starts paused
+let gameInterval;
 
-let snake = [];
-snake[0] = { x: 9 * box, y: 10 * box };
+let snake = [{ x: 9 * box, y: 10 * box }];
 
-let food = {
-    x: Math.floor(Math.random() * 19) * box,
-    y: Math.floor(Math.random() * 19) * box
-};
+const overlay = document.getElementById("snakeOverlay");
+const overlayTitle = document.getElementById("overlayTitle");
+const overlayHint = document.getElementById("overlayHint");
 
-let direction = "";
-
-// Listen for key presses
-document.addEventListener("keydown", setDirection);
-
-function setDirection(event) {
-    if (event.keyCode === 37 && direction !== "RIGHT") direction = "LEFT";
-    else if (event.keyCode === 38 && direction !== "DOWN") direction = "UP";
-    else if (event.keyCode === 39 && direction !== "LEFT") direction = "RIGHT";
-    else if (event.keyCode === 40 && direction !== "UP") direction = "DOWN";
+function showOverlay(title, hint = "") {
+  overlayTitle.textContent = title;
+  overlayHint.textContent = hint;
+  overlay.style.display = "flex";
 }
+
+function hideOverlay() {
+  overlay.style.display = "none";
+}
+
+
+function randomFood() {
+  let pos;
+  do {
+    pos = {
+      x: Math.floor(Math.random() * 19) * box,
+      y: Math.floor(Math.random() * 19) * box
+    };
+  } while (snake.some(s => s.x === pos.x && s.y === pos.y));
+  return pos;
+}
+
+let food = randomFood();
+
+// Show start message
+function showStartMessage() {
+    showOverlay("Press Arrow Key to Start", "Use ⬅️ ⬆️ ➡️ ⬇️ to move");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Press Arrow Key to Start", canvas.width / 2, canvas.height / 2);
+}
+
+showStartMessage();
+
+document.addEventListener("keydown", e => {
+  const keyMap = {
+    ArrowLeft: "LEFT",
+    ArrowUp: "UP",
+    ArrowRight: "RIGHT",
+    ArrowDown: "DOWN"
+  };
+
+  if (!keyMap[e.key]) return;
+
+  if (!gameRunning) {
+    gameRunning = true;
+    direction = keyMap[e.key];
+    gameInterval = setInterval(drawGame, 120);
+
+    hideOverlay();
+
+    return;
+  }
+
+  const opposite = { LEFT: "RIGHT", RIGHT: "LEFT", UP: "DOWN", DOWN: "UP" };
+  if (direction !== opposite[keyMap[e.key]]) {
+    direction = keyMap[e.key];
+  }
+});
 
 function drawGame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!gameRunning) return;
 
-    // Draw snake
-    for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? "green" : "lightgreen";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
-    }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw food
-    ctx.fillStyle = "red";
-    ctx.fillRect(food.x, food.y, box, box);
+  snake.forEach((part, i) => {
+    ctx.fillStyle = i === 0 ? "lime" : "green";
+    ctx.fillRect(part.x, part.y, box, box);
+  });
 
-    let snakeX = snake[0].x;
-    let snakeY = snake[0].y;
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
 
-    if (direction === "LEFT") snakeX -= box;
-    if (direction === "UP") snakeY -= box;
-    if (direction === "RIGHT") snakeX += box;
-    if (direction === "DOWN") snakeY += box;
+  let head = { ...snake[0] };
+  if (direction === "LEFT") head.x -= box;
+  if (direction === "UP") head.y -= box;
+  if (direction === "RIGHT") head.x += box;
+  if (direction === "DOWN") head.y += box;
 
-    // Eat food
-    if (snakeX === food.x && snakeY === food.y) {
-        score++;
-        document.getElementById("score").textContent = score;
-        food = {
-            x: Math.floor(Math.random() * 19) * box,
-            y: Math.floor(Math.random() * 19) * box
-        };
-    } else {
-        snake.pop();
-    }
+  if (
+    head.x < 0 || head.y < 0 ||
+    head.x >= canvas.width || head.y >= canvas.height ||
+    snake.some(s => s.x === head.x && s.y === head.y)
+  ) {
+    gameOver();
+    return;
+  }
 
-    let newHead = { x: snakeX, y: snakeY };
+  if (head.x === food.x && head.y === food.y) {
+    score++;
+    document.getElementById("score").textContent = score;
+    food = randomFood();
+  } else {
+    snake.pop();
+  }
 
-    // Game over conditions
-    if (
-    snakeX < 0 ||
-    snakeY < 0 ||
-    snakeX >= canvas.width ||
-    snakeY >= canvas.height ||
-    collision(newHead, snake)
-) {
-    clearInterval(game);
+  snake.unshift(head);
+}
 
-    // Save score to database
+function gameOver() {
+    clearInterval(gameInterval);
+    gameRunning = false;
     saveSnakeScore(score);
+//   alert("Game Over! Score: " + score);
+    showOverlay("Game Over!", `Score: ${score}`);
 
-    alert("Game Over! Your score: " + score);
-}
-
-    snake.unshift(newHead);
-}
-
-function collision(head, array) {
-    for (let i = 0; i < array.length; i++) {
-        if (head.x === array[i].x && head.y === array[i].y) {
-            return true;
-        }
-    }
-    return false;
 }
 
 function restartGame() {
-    location.reload();
+  location.reload();
 }
 
-let game = setInterval(drawGame, 150);
 function saveSnakeScore(finalScore) {
-    fetch("../backend/save_score.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `game_name=Snake Game&score=${finalScore}`
-    })
-    .then(response => response.text())
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    });
+  fetch("../backend/save_score.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `game_name=Snake Game&score=${finalScore}`
+  });
 }
