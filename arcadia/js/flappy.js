@@ -2,14 +2,16 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // Bird
-let bird = { x: 80, y: 200, size: 30, velocity: 0 };
+// let bird = { x: 80, y: 200, size: 30, velocity: 0 };
+let bird = { x: 100, y: 300, size: 30, velocity: 0 };
 const gravity = 0.6;
 const lift = -10;
 
 // Pipes
 let pipes = [];
 const pipeWidth = 50;
-const pipeGap = 150;
+// const pipeGap = 150;
+const pipeGap = 160;
 
 // Game state
 let score = 0;

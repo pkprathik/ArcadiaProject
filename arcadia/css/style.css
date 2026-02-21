@@ -29,6 +29,76 @@ header p {
     margin-top: 5px;
 }
 
+
+/* =======================
+   COMMON GAME UI (ALL GAMES)
+======================= */
+
+.game-wrap {
+  max-width: 520px;
+  margin: 30px auto;
+  background: #111;
+  padding: 18px 16px 22px;
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  color: white;
+}
+
+.game-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.game-title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.game-score {
+  background: #222;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 12px;
+}
+
+.game-overlay.hidden {
+  display: none;
+}
+
+.game-overlay .card {
+  background: #1c1c1c;
+  padding: 24px 28px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.game-overlay .big {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.game-overlay .hint {
+  font-size: 14px;
+  opacity: 0.7;
+}
+/*------------------------------------------------------------------*/
+
 /* Game cards container */
 .game-container {
     display: flex;
@@ -198,7 +268,8 @@ footer {
 }
 /* Flappy UI – Sky Arcade Theme */
 .flappy-wrap {
-  max-width: 520px;
+  /* max-width: 520px; */
+  max-width: 960px; 
   margin: 30px auto;
   background: linear-gradient(180deg, #9ddcff 0%, #cfefff 40%, #eaf7ff 100%);
   border-radius: 18px;
